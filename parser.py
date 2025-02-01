@@ -13,7 +13,7 @@ class Parser:
         instance_len_members = {}
         instance_members = {}
         for name, func in members:
-            if not isinstance(func, staticmethod) and not name.startswith("__") and not name.endswith("IsNone") and not name in ["Init"]:
+            if not isinstance(func, staticmethod) and not name.startswith("__") and not name.endswith("IsNone") and not name.endswith("Numpy") and not name in ["Init"]:
                 if name.endswith("Length"):
                     instance_len_members[name] = func
                 else:
@@ -23,25 +23,26 @@ class Parser:
 
 
     def __extract_fields(self, root_object):
-        # command = ""
-        # output = {}
-        # exec(command, globals(), output)
-        deserialized_data = {}
-        instance_members, instance_len_members = self.__get_members(type(root_object))
-        for name, func in instance_members.items():
-            # length_function = name + "Length"
-            # if length_function in instance_len_members:
-            #     length = instance_len_members[length_function](output["layer7"])
-            #     temp_data = func(output["layer7"], length)
-            #     deserialized_data[name] = self.__get_attrs(temp_data)
-            # else:
-            temp_field = func(root_object)
-            if type(temp_field) in [int, float]:
-                deserialized_data[name] = temp_field
-            elif type(temp_field) == bytes:
-                deserialized_data[name] = temp_field.decode("utf-8", "strict")
-            else:
-                deserialized_data[name] = self.__extract_fields(temp_field)
+        deserialized_data = None
+        if root_object != None:
+            deserialized_data = {}
+            instance_members, instance_len_members = self.__get_members(type(root_object))
+            for name, func in instance_members.items():
+                length_function_name = name + "Length"
+                if length_function_name in instance_len_members:
+                    length = instance_len_members[length_function_name](root_object)
+                    temp_vector = []
+                    for i in range(length):
+                        temp_vector.append(func(root_object, i))
+                    deserialized_data[name] = temp_vector
+                else:
+                    temp_field = func(root_object)
+                    if type(temp_field) in [int, float]:
+                        deserialized_data[name] = temp_field
+                    elif type(temp_field) == bytes:
+                        deserialized_data[name] = temp_field.decode("utf-8", "strict")
+                    else:
+                        deserialized_data[name] = self.__extract_fields(temp_field)
 
         return deserialized_data
 
