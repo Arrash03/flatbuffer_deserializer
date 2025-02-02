@@ -2,6 +2,9 @@ namespace MyGame.Sample;
 
 enum Color:byte { Red = 0, Green, Blue = 2 }
 
+// Optionally add more tables.
+union Equipment { Weapon }
+
 struct Vec3 {
   x:float;
   y:float;
@@ -17,6 +20,7 @@ table Monster {
   inventory:[ubyte];
   color:Color = Blue;
   weapons:[Weapon];
+  equipped:Equipment;
   path:[Vec3];
 }
 
