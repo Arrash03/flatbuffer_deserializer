@@ -21,27 +21,31 @@ class Parser:
 
         return instance_members, instance_len_members
 
+    def __extract_vector(self, root_object, length_function, field_function):
+        length = length_function(root_object)
+        result = []
+        for i in range(length):
+            temp_field = field_function(root_object, i)
+            deserialized_field = self.__extract_fields(temp_field)
+            result.append(deserialized_field)
+        return result
 
     def __extract_fields(self, root_object):
         deserialized_data = None
         if root_object != None:
-            deserialized_data = {}
-            instance_members, instance_len_members = self.__get_members(type(root_object))
-            for name, func in instance_members.items():
-                length_function_name = name + "Length"
-                if length_function_name in instance_len_members:
-                    length = instance_len_members[length_function_name](root_object)
-                    temp_vector = []
-                    for i in range(length):
-                        temp_vector.append(func(root_object, i))
-                    deserialized_data[name] = temp_vector
-                else:
-                    temp_field = func(root_object)
-                    if type(temp_field) in [int, float]:
-                        deserialized_data[name] = temp_field
-                    elif type(temp_field) == bytes:
-                        deserialized_data[name] = temp_field.decode("utf-8", "strict")
+            if type(root_object) in [int, float]:
+                deserialized_data = root_object
+            elif type(root_object) == bytes:
+                deserialized_data = root_object.decode("utf-8", "strict")
+            else:
+                deserialized_data = {}
+                instance_members, instance_len_members = self.__get_members(type(root_object))
+                for name, func in instance_members.items():
+                    length_function_name = name + "Length"
+                    if length_function_name in instance_len_members:
+                        deserialized_data[name] = self.__extract_vector(root_object, instance_len_members[length_function_name], func)
                     else:
+                        temp_field = func(root_object)
                         deserialized_data[name] = self.__extract_fields(temp_field)
 
         return deserialized_data
