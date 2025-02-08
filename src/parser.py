@@ -1,5 +1,6 @@
 import inspect
 import os
+import json
 
 # trunk-ignore(ruff/F401)
 from MyGame.Sample.Equipment import Equipment
@@ -16,6 +17,7 @@ class Parser:
         self.__root_type = root_type
         self.__union_types = union_types
         self.binary_path = binary_path
+        self.__deserialized_data = None
 
     def __get_members(self, class_type):
         members = inspect.getmembers(class_type, predicate=inspect.isfunction)
@@ -142,9 +144,12 @@ class Parser:
                         exec(command, globals(), output)
 
                         root_object = output["root_object"]
-                        deserialized_data = self.__extract_fields(root_object)
-                        return deserialized_data
+                        self.__deserialized_data = self.__extract_fields(root_object)
+                        return self.__deserialized_data
                     except NameError as e:
                         print(f"needs to import something: \n{e}")
                     except ValueError as e:
                         print(f"input union types are not complete or valid: \n{e}")
+
+    def to_json(self):
+        return json.dumps(self.__deserialized_data)

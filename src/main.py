@@ -9,3 +9,6 @@ if __name__ == "__main__":
     parser = Parser(Monster, {"equipped": Equipment}, "binary_path")
     deserialized_data = parser.parse()
     print(deserialized_data)
+
+    json = parser.to_json()
+    print(json)
