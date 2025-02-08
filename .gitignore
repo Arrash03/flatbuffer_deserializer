@@ -2,6 +2,7 @@
 .venv
 __pycache__
 MyGame
+.trunk
 
 # files
 *.zip
