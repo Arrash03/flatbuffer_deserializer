@@ -6,8 +6,8 @@ from MyGame.Sample.Equipment import Equipment
 # trunk-ignore(ruff/F401)
 from MyGame.Sample.Monster import Monster
 
-# trunk-ignore(ruff/F401)
-from MyGame.Sample.Weapon import Weapon
+# # trunk-ignore(ruff/F401)
+# from MyGame.Sample.Weapon import Weapon
 
 
 class Parser:
@@ -134,11 +134,16 @@ class Parser:
                 with open(
                     os.path.join(self.binary_path, filename), "rb"
                 ) as binary_file:
-                    command = f"root_object = {self.__root_type.__name__}.GetRootAs({binary_file.read()}, offset=0)"
-                    output = locals()
-                    # trunk-ignore(bandit/B102)
-                    exec(command, globals(), output)
+                    try:
+                        command = f"root_object = {self.__root_type.__name__}.GetRootAs({binary_file.read()}, offset=0)"
+                        output = locals()
+                        # trunk-ignore(bandit/B102)
+                        exec(command, globals(), output)
 
-                    root_object = output["root_object"]
-                    deserialized_data = self.__extract_fields(root_object)
-                    return deserialized_data
+                        root_object = output["root_object"]
+                        deserialized_data = self.__extract_fields(root_object)
+                        return deserialized_data
+                    except NameError as e:
+                        print(f"needs to import something: \n{e}")
+                    except ValueError as e:
+                        print(f"input union types are not complete or valid: \n{e}")
