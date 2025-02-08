@@ -1,6 +1,7 @@
 import inspect
 import os
 
+# trunk-ignore(ruff/F401)
 from MyGame.Sample.Equipment import Equipment
 
 # trunk-ignore(ruff/F401)
