@@ -11,8 +11,9 @@ from MyGame.Sample.Weapon import Weapon
 
 
 class Parser:
-    def __init__(self, root_type, binary_path: str):
+    def __init__(self, root_type, union_types, binary_path: str):
         self.__root_type = root_type
+        self.__union_types = union_types
         self.binary_path = binary_path
 
     def __get_members(self, class_type):
@@ -47,9 +48,8 @@ class Parser:
         return result
 
     @staticmethod
-    def __find_enum_members():
-        # hard coded enum type
-        class_vars = Equipment.__dict__
+    def __find_enum_members(union_type):
+        class_vars = union_type.__dict__
         class_variables = {
             value: key
             for key, value in class_vars.items()
@@ -67,12 +67,25 @@ class Parser:
 
         return output["union_object"]
 
+    def __find_union_type(self, name_of_field):
+        result = None
+        for field in self.__union_types.keys():
+            if field.lower() == name_of_field:
+                result = self.__union_types[field]
+                break
+
+        if result is None:
+            raise ValueError(f"field name does nor exist in union_types:\n\t{name_of_field}, \n\t{self.__union_types}")
+
+        return result
+
     def __extract_union(self, root_object, field_type_function, field_function):
         field_type = field_type_function(root_object)
 
         result = None
-        if field_type is not None:
-            class_variables = Parser.__find_enum_members()
+        if field_type != 0:
+            union_type = self.__find_union_type(field_function.__name__.lower())
+            class_variables = Parser.__find_enum_members(union_type)
             type_name = class_variables[field_type]
 
             union_object = Parser.__create_union_object(type_name)
