@@ -6,8 +6,8 @@ from MyGame.Sample.Equipment import Equipment
 # trunk-ignore(ruff/F401)
 from MyGame.Sample.Monster import Monster
 
-# # trunk-ignore(ruff/F401)
-# from MyGame.Sample.Weapon import Weapon
+# trunk-ignore(ruff/F401)
+from MyGame.Sample.Weapon import Weapon
 
 
 class Parser:
